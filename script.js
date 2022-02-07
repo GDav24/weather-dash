@@ -4,6 +4,8 @@ var cityInputElem = document.querySelector("#city")
 
 var cityCurrentWeatherEl = document.querySelector("#weather-container")
 
+var forecastContainer = document.querySelector("#forecast")
+
 var apiKey = "d4b90e8410e1e6340fdef8cb4dc8c977";
 
 var cityLat = null;
@@ -124,6 +126,25 @@ var getForecast = function (cityLat, cityLon) {
                 console.log(response)
                 response.json().then(function(data) {
                     console.log ("yessir", data)
+                    // day 1
+                    dayOneIcon = data.list[7].weather[0].icon 
+                    console.log(dayOneIcon)
+                    dayOneDate = data.list[7].dt_txt
+                    console.log(dayOneDate)
+                    dayOneTemp = Math.round((data.list[7].main.temp - 273.15) * 1.8 + 32)
+                    console.log(dayOneTemp)
+                    dayOneWind = Math.round((data.list[7].wind.speed) * 2.2369)
+                    console.log(dayOneWind)
+                    dayOneHumidity = data.list[7].main.humidity
+                    console.log(dayOneHumidity)
+
+                    var dayOneDiv = document.createElement("div")
+
+                    var dayOneData = document.createElement("div")
+                    dayOneData.innerHTML = dayOneIcon + " " + "Date:" + " " + dayOneDate + " " + "Temp:" + " " + dayOneTemp + "F°" + " " + "Wind Speed:" + " " + dayOneWind + "MPH" + " " + "Humidity" + " " + dayOneHumidity + "%"
+
+                    forecastContainer.appendChild(dayOneDiv)
+                    dayOneDiv.appendChild(dayOneData)
                 })
             }
         })
