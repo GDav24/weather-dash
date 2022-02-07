@@ -6,8 +6,6 @@ var cityCurrentWeatherEl = document.querySelector("#weather-container")
 
 var apiKey = "d4b90e8410e1e6340fdef8cb4dc8c977";
 
-var weatherSearchTerm = document.querySelector("#city-search-term")
-
 var cityLat = null;
 
 var cityLon = null;
@@ -26,10 +24,10 @@ let today = new Date().toLocaleDateString()
 
 console.log(today)
 
-var getCityCoord = function(city) {
+var getCityCoord = function(city, state) {
     console.log("function was called")
 
-    var apiUrl = "https://api.openweathermap.org/geo/1.0/direct?q=" + city + "," + "US" + "&limit=" + 5 + "&appid=" + apiKey;
+    var apiUrl = "https://api.openweathermap.org/geo/1.0/direct?q=" + city + "," + state + "," + "US" + "&limit=" + 5 + "&appid=" + apiKey;
     console.log("function was called")
 
     fetch(apiUrl)
@@ -43,6 +41,7 @@ var getCityCoord = function(city) {
                     cityLon = data[0].lon
                     console.log("mmg", cityLon)
                     getCityWeather(cityLat, cityLon)
+                    getForecast(cityLat, cityLon)
                     cityName = data[0].name
                 })
             }
@@ -68,7 +67,6 @@ var getCityWeather = function(cityLat, cityLon) {
                     cityCurrentWind = Math.round((data.current.wind_speed) * 2.2369)
                     cityCurrentHumidity = data.current.humidity
                     cityCurrentUv = data.current.uvi
-                    // displayCurrentWeather(cityCurrentWeather)
                     
 
                     var nameEl = document.createElement("div");
@@ -115,26 +113,35 @@ var getCityWeather = function(cityLat, cityLon) {
 
 };   
 
+var getForecast = function (cityLat, cityLon) {
+    console.log("forecast-works")
 
+    var forecastUrl = "https://api.openweathermap.org/data/2.5/forecast?lat=" + cityLat + "&lon="  + cityLon +  "&appid=" + apiKey;
+
+    fetch(forecastUrl)
+        .then(function(response){
+            if (response.ok) {
+                console.log(response)
+                response.json().then(function(data) {
+                    console.log ("yessir", data)
+                })
+            }
+        })
+}
 
 var formSubmitListener = function(event) {
     event.preventDefault();
-    var city = cityInputElem.value;
+    var city = cityInputElem.value.split(",")[0];
+    var state = cityInputElem.value.split(",")[1];
 
-    if (city) {
-        getCityCoord(city);
+    if (city, state) {
+        getCityCoord(city, state);
         cityInputElem.value = "";
     } else {
-        alert("Please enter valid city name")
+        alert("Please enter valid city name and state code")
     }
     console.log(event);
+    console.log(city, state)
 };
 
-// var displayCurrentWeather = function(cityCurrentWeather, searchCity) {
-//     console.log(cityCurrentWeather)
-//     // clear old content
-//     cityCurrentWeatherEl.textContent = "";
-//     weatherSearchTerm.textContent = searchCity;
-//     console.log(searchCity)
-// }
 userFormElem.addEventListener("click", formSubmitListener);
