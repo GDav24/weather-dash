@@ -249,7 +249,23 @@
     align-items: center;
   }
   
+  .extreme {
+      background-color: rgb(177, 2, 104);
+  }
   
+  .very-high {
+      background-color: red;
+  }
   
+  .high {
+      background-color: orange;
+  }
   
-  
+  .moderate {
+      background-color: yellow;
+  }
+
+  .low {
+      background-color: green;
+      margin-right: 250px;
+  }

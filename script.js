@@ -1,10 +1,10 @@
-var userFormElem = document.querySelector("#user-form");
+var userFormElem = document.querySelector("#user-btn");
 
 var cityInputElem = document.querySelector("#city")
 
 var cityCurrentWeatherEl = document.querySelector("#weather-container")
 
-var apiKey = "77b28197bb72ab7635a0dc025c9427d0";
+var apiKey = "d4b90e8410e1e6340fdef8cb4dc8c977";
 
 var weatherSearchTerm = document.querySelector("#city-search-term")
 
@@ -20,10 +20,16 @@ var cityHumidity = null;
 
 var cityUv = null;
 
-var getCityCoord = function(city, state) {
+var cityName = null;
+
+let today = new Date().toLocaleDateString()
+
+console.log(today)
+
+var getCityCoord = function(city) {
     console.log("function was called")
 
-    var apiUrl = "https://api.openweathermap.org/geo/1.0/direct?q=" + city + "," + state + "," + "US" + "&limit=" + 5 + "&appid=" + apiKey;
+    var apiUrl = "https://api.openweathermap.org/geo/1.0/direct?q=" + city + "," + "US" + "&limit=" + 5 + "&appid=" + apiKey;
     console.log("function was called")
 
     fetch(apiUrl)
@@ -37,18 +43,19 @@ var getCityCoord = function(city, state) {
                     cityLon = data[0].lon
                     console.log("mmg", cityLon)
                     getCityWeather(cityLat, cityLon)
+                    cityName = data[0].name
                 })
             }
         })
 
 };
 
-getCityCoord("Maitland", "FL")
+// getCityCoord("Maitland", "FL")
 
 var getCityWeather = function(cityLat, cityLon) {
     console.log("cityweather")
 
-    var weatherUrl = "https://api.openweathermap.org/data/2.5/weather?lat=" + cityLat + "&lon=" + cityLon + "&appid=" + apiKey;    
+    var weatherUrl = "https://api.openweathermap.org/data/2.5/onecall?lat=" + cityLat + "&lon=" + cityLon + "&exclude=" + "minutely,hourly,daily,alerts" + "&appid=" + apiKey;    
 
     fetch(weatherUrl)
         .then(function(response) {
@@ -56,23 +63,54 @@ var getCityWeather = function(cityLat, cityLon) {
                 console.log(response)
                 response.json().then(function(data) {
                     console.log ("success", data)
-                    cityCurrentWeather = Math.round((data.main.temp - 273.15) * 1.8 + 32)
+                    cityCurrentWeather = Math.round((data.current.temp - 273.15) * 1.8 + 32)
                     console.log("yes", cityCurrentWeather)
-                    cityCurrentWind = data.wind.speed
-                    displayCurrentWeather(cityCurrentWeather)
+                    cityCurrentWind = Math.round((data.current.wind_speed) * 2.2369)
+                    cityCurrentHumidity = data.current.humidity
+                    cityCurrentUv = data.current.uvi
+                    // displayCurrentWeather(cityCurrentWeather)
+                    
+
+                    var nameEl = document.createElement("div");
+                    nameEl.innerHTML = cityName + "  " + today
                     
                     var tempEl = document.createElement("div");
                     tempEl.innerHTML = "Temp:" + " " + cityCurrentWeather + "F°"
 
                     var windEl = document.createElement("div");
-                    windEl.innerHTML = "Wind Speed:" + " " + cityCurrentWind + "MPH"
+                    windEl.innerHTML = "Wind Speed:" + " " + cityCurrentWind + " " + "MPH"
                     console.log(cityCurrentWind)
 
+                    var humidityEl = document.createElement("div");
+                    humidityEl.innerHTML = "Humidity" + " " + cityCurrentHumidity + " " + "%"
+                    
+                    var uvEl = document.createElement("div");
+                    uvEl.innerHTML = "UV Index" + " " + cityCurrentUv 
+                    if (cityCurrentUv >= 11) {
+                        uvEl.classList.add("extreme")
+                    }
+                    if (cityCurrentUv == 9 || cityCurrentUv == 10 || cityCurrentUv == 8) {
+                        uvEl.classList.add("very-high")
+                    }
+                    if (cityCurrentUv == 6 || cityCurrentUv == 7) {
+                        uvEl.classList.add("high")
+                    }
+                    if (cityCurrentUv == 5 | cityCurrentUv == 4 | cityCurrentUv == 3) {
+                        uvEl.classList.add("moderate")
+                    }
+                    if (cityCurrentUv == 1 || cityCurrentUv == 2 || cityCurrentUv == 0) {
+                        uvEl.classList.add("low")
+                    }
+
+
+                    cityCurrentWeatherEl.appendChild(nameEl)
                     cityCurrentWeatherEl.appendChild(tempEl)
                     cityCurrentWeatherEl.appendChild(windEl)
+                    cityCurrentWeatherEl.appendChild(humidityEl)
+                    cityCurrentWeatherEl.appendChild(uvEl)
                     console.log("appended")
                 })
-            }   
+            }    
         })   
 
 };   
@@ -81,7 +119,7 @@ var getCityWeather = function(cityLat, cityLon) {
 
 var formSubmitListener = function(event) {
     event.preventDefault();
-    var city =cityInputElem.value.trim();
+    var city = cityInputElem.value;
 
     if (city) {
         getCityCoord(city);
@@ -92,11 +130,11 @@ var formSubmitListener = function(event) {
     console.log(event);
 };
 
-var displayCurrentWeather = function(cityCurrentWeather, searchCity) {
-    console.log(cityCurrentWeather)
-    // clear old content
-    cityCurrentWeatherEl.textContent = "";
-    weatherSearchTerm.textContent = searchCity;
-    console.log(searchCity)
-}
-userFormElem.addEventListener("submit", formSubmitListener);
+// var displayCurrentWeather = function(cityCurrentWeather, searchCity) {
+//     console.log(cityCurrentWeather)
+//     // clear old content
+//     cityCurrentWeatherEl.textContent = "";
+//     weatherSearchTerm.textContent = searchCity;
+//     console.log(searchCity)
+// }
+userFormElem.addEventListener("click", formSubmitListener);
